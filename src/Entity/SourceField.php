@@ -46,9 +46,9 @@ class SourceField extends AbstractEntity
         private string $defaultLabel,
         private array $labels,
         private bool $isSystem = false,
-        int $id = null,
+        string $uri = null,
     ) {
-        $this->id = $id;
+        $this->uri = $uri;
     }
 
     public function getMetadata(): Metadata
@@ -84,16 +84,18 @@ class SourceField extends AbstractEntity
         return $this->isSystem;
     }
 
-    public function __toJson(): array
+    public function __toJson(bool $isBulkContext = false): array
     {
         $data = [
-            'metadata' => (string) $this->getMetadata(),
+            'metadata' => $isBulkContext
+                ? $this->cleanApiPrefix((string) $this->getMetadata())
+                : (string) $this->getMetadata(),
             'code' => $this->getCode(),
             'type' => $this->getType(),
             'defaultLabel' => $this->getDefaultLabel(),
             'labels' => array_map(
-                function ($label) {
-                    return $label->__toJson();
+                function ($label) use ($isBulkContext) {
+                    return $label->__toJson($isBulkContext);
                 },
                 $this->getLabels()
             ),

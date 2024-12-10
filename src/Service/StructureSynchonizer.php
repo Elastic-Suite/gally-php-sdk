@@ -84,7 +84,7 @@ class StructureSynchonizer
 
     public function syncLocalizedCatalog(LocalizedCatalog $localizedCatalog): LocalizedCatalog
     {
-        if (!$localizedCatalog->getCatalog()->getId()) {
+        if (!$localizedCatalog->getCatalog()->getUri()) {
             $this->catalogRepository->createOrUpdate($localizedCatalog->getCatalog());
         }
 
@@ -137,7 +137,7 @@ class StructureSynchonizer
 
     public function syncSourceField(SourceField $sourceField): void
     {
-        if (!$sourceField->getMetadata()->getId()) {
+        if (!$sourceField->getMetadata()->getUri()) {
             $this->metadataRepository->createOrUpdate($sourceField->getMetadata());
         }
 

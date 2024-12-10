@@ -38,7 +38,7 @@ class CatalogRepository extends AbstractRepository
         return new Catalog(
             $rawEntity['code'],
             $rawEntity['name'],
-            $rawEntity['id'] ?? null,
+            $rawEntity['@id'] ?? null,
         );
     }
 }

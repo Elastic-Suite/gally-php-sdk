@@ -65,13 +65,14 @@ abstract class AbstractRepository
         $entities = [];
         do {
             $rawEntities = $this->client->get(
-                "/{$this->getEntityCode()}",
+                "{$this->getEntityCode()}",
                 array_merge(
                     $criteria,
                     ['currentPage' => $currentPage, 'pageSize' => self::FETCH_PAGE_SIZE],
                 )
             );
 
+            $rawEntities = array_key_exists('hydra:member', $rawEntities) ? $rawEntities['hydra:member'] : [];
             foreach ($rawEntities as $rawEntity) {
                 $entity = $this->buildEntityObject($rawEntity);
                 $entities[$this->getIdentity($entity)] = $entity;
@@ -97,9 +98,9 @@ abstract class AbstractRepository
         $existingEntity = $this->entityByIdentity[$identity] ?? null;
         $result = $existingEntity
             ? $this->client->put((string) $existingEntity, $entity->__toJson())
-            : $this->client->post("/{$this->getEntityCode()}", $entity->__toJson());
+            : $this->client->post("{$this->getEntityCode()}", $entity->__toJson());
 
-        $entity->setId($result['id']);
+        $entity->setUri($result['@id']);
         $this->saveInCache($entity);
 
         return $entity;

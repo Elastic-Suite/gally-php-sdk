@@ -28,7 +28,7 @@ abstract class AbstractBulkRepository extends AbstractRepository
 
     public function addEntityToBulk(AbstractEntity $entity): void
     {
-        $this->currentBatch[] = $entity->__toJson();
+        $this->currentBatch[] = $entity->__toJson(true);
         ++$this->currentBatchSize;
         if ($this->currentBatchSize >= self::BATCH_SIZE) {
             $this->runBulk();
@@ -38,7 +38,8 @@ abstract class AbstractBulkRepository extends AbstractRepository
     public function runBulk(): void
     {
         if ($this->currentBatchSize) {
-            $rawEntities = $this->client->post("/{$this->getEntityCode()}/bulk", $this->currentBatch);
+            $rawEntities = $this->client->post("{$this->getEntityCode()}/bulk", $this->currentBatch);
+            $rawEntities = array_key_exists('hydra:member', $rawEntities) ? $rawEntities['hydra:member'] : [];
             foreach ($rawEntities as $rawEntity) {
                 $entity = $this->buildEntityObject($rawEntity);
                 $this->saveInCache($entity);

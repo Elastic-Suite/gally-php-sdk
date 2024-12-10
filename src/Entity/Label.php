@@ -37,11 +37,18 @@ class Label
         return $this->label;
     }
 
-    public function __toJson(): array
+    public function __toJson(bool $isBulkContext = false): array
     {
         return [
-            'localizedCatalog' => (string) $this->getLocalizedCatalog(),
+            'localizedCatalog' => $isBulkContext
+                ? $this->cleanApiPrefix((string) $this->getLocalizedCatalog())
+                : (string) $this->getLocalizedCatalog(),
             'label' => $this->getLabel(),
         ];
+    }
+
+    protected function cleanApiPrefix(string $prefix): string
+    {
+        return preg_replace('#^.*(/[^/]+/[^/]+$)#', '$1', $prefix);
     }
 }

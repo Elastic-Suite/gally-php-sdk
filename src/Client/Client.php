@@ -56,7 +56,18 @@ class Client
 
     public function graphql(string $query, array $variables = [], array $headers = []): array
     {
-        $response = $this->query('POST', '/graphql', ['query' => $query, 'variables' => $variables], $headers);
+        $response = $this->query(
+            'POST',
+            'graphql',
+            ['query' => $query, 'variables' => $variables],
+            array_merge(
+                [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                ],
+                $headers,
+            )
+        );
         if (isset($response['errors'])) {
             $error = reset($response['errors']);
             throw new \RuntimeException($error['extensions']['debugMessage'] ?? $error['message']);
@@ -78,8 +89,8 @@ class Client
                 [
                     RequestOptions::HEADERS => array_merge(
                         [
-                            'accept' => 'application/json',
-                            'Content-Type' => 'application/json',
+                            'Accept' => 'application/ld+json',
+                            'Content-Type' => 'application/ld+json',
                             'Authorization' => 'Bearer ' . $this->getAuthorizationToken(),
                         ],
                         $headers,
@@ -107,10 +118,10 @@ class Client
     {
         if (null === $this->token) {
             try {
-                $response = $this->getClient()->post('/authentication_token', [
+                $response = $this->getClient()->post("authentication_token", [
                     RequestOptions::HEADERS => [
-                        'accept' => 'application/json',
-                        'Content-Type' => 'application/json',
+                        'accept' => 'application/ld+json',
+                        'Content-Type' => 'application/ld+json',
                     ],
                     RequestOptions::JSON => [
                         'email' => $this->configuration->getUser(),
@@ -133,7 +144,7 @@ class Client
     {
         if (null === $this->client) {
             $this->client = new GuzzleClient([
-                'base_uri' => $this->configuration->getBaseUri(),
+                'base_uri' => trim($this->configuration->getBaseUri(), '/') . '/',
                 'verify' => 'prod' === $this->environment,
             ]);
         }

@@ -24,9 +24,9 @@ class Catalog extends AbstractEntity
     public function __construct(
         private string $code,
         private string $name,
-        int $id = null,
+        string $uri = null,
     ) {
-        $this->id = $id;
+        $this->uri = $uri;
     }
 
     public function getCode(): string
@@ -39,7 +39,7 @@ class Catalog extends AbstractEntity
         return $this->name;
     }
 
-    public function __toJson(): array
+    public function __toJson(bool $isBulkContext = false): array
     {
         return [
             'code' => $this->getCode(),

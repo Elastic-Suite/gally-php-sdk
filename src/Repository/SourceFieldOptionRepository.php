@@ -56,7 +56,7 @@ class SourceFieldOptionRepository extends AbstractBulkRepository
             $rawEntity['position'],
             $rawEntity['defaultLabel'],
             $rawEntity['labels'],
-            $rawEntity['id'] ?? null,
+            $rawEntity['@id'] ?? null,
         );
     }
 }

@@ -59,7 +59,7 @@ class LocalizedCatalogRepository extends AbstractRepository
             $rawEntity['name'],
             $rawEntity['locale'],
             $rawEntity['currency'],
-            $rawEntity['id'] ?? null,
+            $rawEntity['@id'] ?? null,
         );
     }
 }

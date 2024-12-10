@@ -41,7 +41,7 @@ class IndexOperation
         $index = new Index($metadata, $localizedCatalog);
 
         $indexRawData = $this->client->post(Index::getEntityCode(), $index->__toJson());
-        $index->setId($indexRawData['name']);
+        $index->setName($indexRawData['name']);
 
         return $index;
     }
@@ -57,7 +57,7 @@ class IndexOperation
                 && 'live' === $rawIndex['status']
             ) {
                 $index = new Index($metadata, $localizedCatalog);
-                $index->setId($rawIndex['name']);
+                $index->setName($rawIndex['name']);
 
                 return $index;
             }
@@ -68,19 +68,19 @@ class IndexOperation
 
     public function refreshIndex(Index $index): void
     {
-        $this->client->put(sprintf('%s/%s/%s', Index::getEntityCode(), 'refresh', $index->getId()));
+        $this->client->put(sprintf('%s/%s/%s', Index::getEntityCode(), 'refresh', $index->getName()));
     }
 
     public function installIndex(Index $index): void
     {
-        $this->client->put(sprintf('%s/%s/%s', Index::getEntityCode(), 'install', $index->getId()));
+        $this->client->put(sprintf('%s/%s/%s', Index::getEntityCode(), 'install', $index->getName()));
     }
 
     public function executeBulk(Index $index, array $documents): void
     {
         $this->client->post(
             self::INDEX_DOCUMENT_ENTITY_CODE,
-            ['indexName' => $index->getId(), 'documents' => $documents]
+            ['indexName' => $index->getName(), 'documents' => $documents]
         );
     }
 }

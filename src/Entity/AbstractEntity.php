@@ -18,22 +18,27 @@ abstract class AbstractEntity
 {
     abstract public static function getEntityCode(): string;
 
-    protected int|string|null $id;
+    protected string|null $uri;
 
-    public function getId(): int|string|null
+    public function getUri(): string
     {
-        return $this->id;
+        return $this->uri ?: '';
     }
 
-    public function setId(int|string $id): void
+    public function setUri(string $uri): void
     {
-        $this->id = $id;
+        $this->uri = $uri;
     }
 
     public function __toString(): string
     {
-        return $this->getId() ? '/' . static::getEntityCode() . '/' . $this->getId() : '';
+        return $this->getUri();
     }
 
-    abstract public function __toJson(): array;
+    abstract public function __toJson(bool $isBulkContext = false): array;
+
+    protected function cleanApiPrefix(string $uri): string
+    {
+        return preg_replace('#^.*(/[^/]+/[^/]+$)#', '$1', $uri);
+    }
 }

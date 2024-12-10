@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Gally\Sdk\Entity;
 
-class Index extends AbstractEntity
+class Index
 {
     public static function getEntityCode(): string
     {
@@ -24,9 +24,9 @@ class Index extends AbstractEntity
     public function __construct(
         private Metadata $metadata,
         private LocalizedCatalog $localizedCatalog,
-        int $id = null,
+        string $name = null,
     ) {
-        $this->id = $id;
+        $this->name = $name;
     }
 
     public function getMetadata(): Metadata
@@ -39,7 +39,17 @@ class Index extends AbstractEntity
         return $this->localizedCatalog;
     }
 
-    public function __toJson(): array
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function __toJson(bool $isBulkContext = false): array
     {
         return [
             'entityType' => $this->getMetadata()->getEntity(),

@@ -27,9 +27,9 @@ class LocalizedCatalog extends AbstractEntity
         private string $name,
         private string $locale,
         private string $currency,
-        int $id = null,
+        string $uri = null,
     ) {
-        $this->id = $id;
+        $this->uri = $uri;
     }
 
     public function getCatalog(): Catalog
@@ -57,14 +57,16 @@ class LocalizedCatalog extends AbstractEntity
         return $this->currency;
     }
 
-    public function __toJson(): array
+    public function __toJson(bool $isBulkContext = false): array
     {
         return [
             'code' => $this->getCode(),
             'name' => $this->getName(),
             'locale' => $this->getLocale(),
             'currency' => $this->getCurrency(),
-            'catalog' => (string) $this->getCatalog(),
+            'catalog' => $isBulkContext
+                ? $this->cleanApiPrefix((string) $this->getCatalog())
+                : (string) $this->getCatalog(),
         ];
     }
 }
