@@ -53,7 +53,7 @@ class SourceFieldOptionRepository extends AbstractBulkRepository
         return new SourceFieldOption(
             $sourceField,
             $rawEntity['code'],
-            $rawEntity['position'],
+            $rawEntity['position'] ?? 0,
             $rawEntity['defaultLabel'],
             $rawEntity['labels'],
             $rawEntity['@id'] ?? null,

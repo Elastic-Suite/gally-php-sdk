@@ -16,9 +16,12 @@ namespace Gally\Sdk\Service;
 
 use Gally\Sdk\Client\Client;
 use Gally\Sdk\Client\Configuration;
+use Gally\Sdk\Entity\AbstractEntity;
 use Gally\Sdk\Entity\LocalizedCatalog;
+use Gally\Sdk\Entity\Metadata;
 use Gally\Sdk\Entity\SourceField;
 use Gally\Sdk\Entity\SourceFieldOption;
+use Gally\Sdk\Repository\AbstractRepository;
 use Gally\Sdk\Repository\CatalogRepository;
 use Gally\Sdk\Repository\LocalizedCatalogRepository;
 use Gally\Sdk\Repository\MetadataRepository;
@@ -58,7 +61,7 @@ class StructureSynchonizer
 
         /** @var LocalizedCatalog $localizedCatalog */
         foreach ($localizedCatalogs as $localizedCatalog) {
-            $this->syncLocalizedCatalog($localizedCatalog);
+            $this->syncLocalizedCatalog($localizedCatalog, true);
             unset($existingLocalizedCatalogs[$this->localizedCatalogRepository->getIdentity($localizedCatalog)]);
             unset($existingCatalogs[$this->catalogRepository->getIdentity($localizedCatalog->getCatalog())]);
         }
@@ -82,8 +85,23 @@ class StructureSynchonizer
         }
     }
 
-    public function syncLocalizedCatalog(LocalizedCatalog $localizedCatalog): LocalizedCatalog
+    public function syncLocalizedCatalog(LocalizedCatalog $localizedCatalog, bool $isFullContext = false): LocalizedCatalog
     {
+        if (!$isFullContext) {
+            $this->fetchEntityUri(
+                $localizedCatalog->getCatalog(),
+                $this->catalogRepository,
+                ['code' => $localizedCatalog->getCatalog()->getCode()]
+            );
+            $this->catalogRepository->createOrUpdate($localizedCatalog->getCatalog());
+
+            $this->fetchEntityUri(
+                $localizedCatalog,
+                $this->localizedCatalogRepository,
+                ['code' => $localizedCatalog->getCode()]
+            );
+        }
+
         if (!$localizedCatalog->getCatalog()->getUri()) {
             $this->catalogRepository->createOrUpdate($localizedCatalog->getCatalog());
         }
@@ -104,7 +122,7 @@ class StructureSynchonizer
             $identity = $this->sourceFieldRepository->getIdentity($sourceField);
             $existingSourceField = $existingSourceFields[$identity] ?? null;
             if (!$existingSourceField?->isSystem()) {
-                $this->syncSourceField($sourceField);
+                $this->syncSourceField($sourceField, false);
             }
             unset($existingSourceFields[$identity]);
             unset($existingMetadatas[$this->metadataRepository->getIdentity($sourceField->getMetadata())]);
@@ -123,8 +141,9 @@ class StructureSynchonizer
                 }
             }
 
+            /** @var Metadata $metadata */
             foreach ($existingMetadatas as $metadata) {
-                if (!$dryRun) {
+                if (!$dryRun && !in_array($metadata->getEntity(), ['product', 'category'])) {
                     $this->metadataRepository->delete($metadata);
                 }
             }
@@ -135,8 +154,22 @@ class StructureSynchonizer
         }
     }
 
-    public function syncSourceField(SourceField $sourceField): void
+    public function syncSourceField(SourceField $sourceField, bool $isFullContext = false): void
     {
+        if (!$isFullContext) {
+            $this->fetchEntityUri(
+                $sourceField->getMetadata(),
+                $this->metadataRepository,
+                ['entity' => $sourceField->getMetadata()->getEntity()]
+            );
+
+            $this->fetchEntityUri(
+                $sourceField,
+                $this->sourceFieldRepository,
+                ['metadata.entity' => $sourceField->getMetadata()->getEntity(), 'code' => $sourceField->getCode()]
+            );
+        }
+
         if (!$sourceField->getMetadata()->getUri()) {
             $this->metadataRepository->createOrUpdate($sourceField->getMetadata());
         }
@@ -146,7 +179,11 @@ class StructureSynchonizer
             $label->setLocalizedCatalog($this->localizedCatalogRepository->findByIdentity($label->getLocalizedCatalog()));
         }
 
-        $this->sourceFieldRepository->addEntityToBulk($sourceField);
+        if ($isFullContext) {
+            $this->sourceFieldRepository->addEntityToBulk($sourceField);
+        } else {
+            $this->sourceFieldRepository->createOrUpdate($sourceField);
+        }
     }
 
     /**
@@ -160,7 +197,7 @@ class StructureSynchonizer
         $existingSourceFieldOptions = $this->sourceFieldOptionRepository->findAll();
 
         foreach ($sourceFieldOptions as $sourceFieldOption) {
-            $this->syncSourceFieldOption($sourceFieldOption);
+            $this->syncSourceFieldOption($sourceFieldOption, true);
             unset($existingSourceFieldOptions[$this->sourceFieldOptionRepository->getIdentity($sourceFieldOption)]);
         }
 
@@ -178,8 +215,25 @@ class StructureSynchonizer
         }
     }
 
-    public function syncSourceFieldOption(SourceFieldOption $sourceFieldOption): void
+    public function syncSourceFieldOption(SourceFieldOption $sourceFieldOption, bool $isFullContext = false): void
     {
+        if (!$isFullContext) {
+            $this->fetchEntityUri(
+                $sourceFieldOption->getSourceField(),
+                $this->sourceFieldRepository,
+                [
+                    'entity' => $sourceFieldOption->getSourceField()->getMetadata()->getEntity(),
+                    'code' => $sourceFieldOption->getSourceField()->getCode()
+                ]
+            );
+
+            $this->fetchEntityUri(
+                $sourceFieldOption,
+                $this->sourceFieldOptionRepository,
+                ['sourceField' => $sourceFieldOption->getSourceField()->getUri(), 'code' => $sourceFieldOption->getCode()]
+            );
+        }
+
         $sourceFieldOption->setSourceField($this->sourceFieldRepository->findByIdentity($sourceFieldOption->getSourceField()));
 
         // Replace localized catalog by an instance with id.
@@ -187,6 +241,41 @@ class StructureSynchonizer
             $label->setLocalizedCatalog($this->localizedCatalogRepository->findByIdentity($label->getLocalizedCatalog()));
         }
 
-        $this->sourceFieldOptionRepository->addEntityToBulk($sourceFieldOption);
+        if ($isFullContext) {
+            $this->sourceFieldOptionRepository->addEntityToBulk($sourceFieldOption);
+        } else {
+            $this->sourceFieldOptionRepository->createOrUpdate($sourceFieldOption);
+        }
+    }
+
+    private function fetchEntityUri(AbstractEntity $entity, AbstractRepository $repository, array $criteria)
+    {
+        if (get_class($entity) == SourceFieldOption::class) {
+            $code = $criteria['code'];
+            unset($criteria['code']);
+        }
+        if (get_class($entity) == Metadata::class) {
+            $entityCode = $criteria['entity'];
+            unset($criteria['entity']);
+        }
+        $existingEntities = $repository->findBy($criteria);
+        if ($existingEntities && count($existingEntities) == 1) {
+            $existingEntity = reset($existingEntities);
+            $entity->setUri($existingEntity->getUri());
+        } elseif (isset($code)) {
+            foreach ($existingEntities as $existingEntity) {
+                if ($existingEntity->getCode() == $code) {
+                    $entity->setUri($existingEntity->getUri());
+                    break;
+                }
+            }
+        } elseif (isset($entityCode)) {
+            foreach ($existingEntities as $existingEntity) {
+                if ($existingEntity->getEntity() == $entityCode) {
+                    $entity->setUri($existingEntity->getUri());
+                    break;
+                }
+            }
+        }
     }
 }

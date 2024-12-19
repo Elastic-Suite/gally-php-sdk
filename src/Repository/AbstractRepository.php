@@ -96,9 +96,10 @@ abstract class AbstractRepository
         $identity = $this->getIdentity($entity);
 
         $existingEntity = $this->entityByIdentity[$identity] ?? null;
-        $result = $existingEntity
-            ? $this->client->put((string) $existingEntity, $entity->__toJson())
-            : $this->client->post("{$this->getEntityCode()}", $entity->__toJson());
+        $uri = $existingEntity ? (string) $existingEntity : (string) $entity;
+        $result = $uri
+            ? $this->client->put($uri, $entity->__toJson())
+            : $this->client->post($this->getEntityCode(), $entity->__toJson());
 
         $entity->setUri($result['@id']);
         $this->saveInCache($entity);
