@@ -33,11 +33,9 @@ class SearchManager
     protected array $productSortingOptions;
     protected SourceFieldRepository $sourceFieldRepository;
 
-    public function __construct(
-        Configuration $configuration,
-        string $environment,
-    ) {
-        $client = new Client($configuration, $environment);
+    public function __construct(Configuration $configuration)
+    {
+        $client = new Client($configuration);
         $this->client = $client;
         $this->sourceFieldRepository = new SourceFieldRepository($client, new MetadataRepository($client));
     }

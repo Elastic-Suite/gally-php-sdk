@@ -25,7 +25,6 @@ class Client
 
     public function __construct(
         private readonly Configuration $configuration,
-        private readonly string $environment,
     ) {
     }
 
@@ -145,7 +144,7 @@ class Client
         if (null === $this->client) {
             $this->client = new GuzzleClient([
                 'base_uri' => trim($this->configuration->getBaseUri(), '/') . '/',
-                'verify' => 'prod' === $this->environment,
+                'verify' => $this->configuration->getCheckSSL(),
             ]);
         }
 

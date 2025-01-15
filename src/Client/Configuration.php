@@ -18,6 +18,7 @@ class Configuration
 {
     public function __construct(
         private string $baseUri,
+        private bool $checkSSL,
         private string $user,
         private string $password,
     ) {
@@ -26,6 +27,11 @@ class Configuration
     public function getBaseUri(): string
     {
         return $this->baseUri;
+    }
+
+    public function getCheckSSL(): bool
+    {
+        return $this->checkSSL;
     }
 
     public function getUser(): string

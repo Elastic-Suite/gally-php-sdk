@@ -39,11 +39,9 @@ class StructureSynchonizer
     private SourceFieldRepository $sourceFieldRepository;
     private SourceFieldOptionRepository $sourceFieldOptionRepository;
 
-    public function __construct(
-        Configuration $configuration,
-        string $environment,
-    ) {
-        $client = new Client($configuration, $environment);
+    public function __construct(Configuration $configuration)
+    {
+        $client = new Client($configuration);
         $this->catalogRepository = new CatalogRepository($client);
         $this->localizedCatalogRepository = new LocalizedCatalogRepository($client, $this->catalogRepository);
         $this->metadataRepository = new MetadataRepository($client);

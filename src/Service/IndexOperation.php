@@ -29,11 +29,9 @@ class IndexOperation
 
     protected Client $client;
 
-    public function __construct(
-        Configuration $configuration,
-        string $environment,
-    ) {
-        $this->client = new Client($configuration, $environment);
+    public function __construct(Configuration $configuration) 
+    {
+        $this->client = new Client($configuration);
     }
 
     public function createIndex(Metadata $metadata, LocalizedCatalog $localizedCatalog): Index
