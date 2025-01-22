@@ -86,9 +86,23 @@ class SearchManager
         );
     }
 
+    /**
+     * @return SourceField[]
+     */
+    public function getSelectSourceField(Metadata $metadata): array
+    {
+        return $this->sourceFieldRepository->findBy(
+            [
+                'metadata.entity' => $metadata->getEntity(),
+                'type' => SourceField::TYPE_SELECT,
+            ]
+        );
+    }
+
     public function search(Request $request): Response
     {
         $priceGroup = $request->getPriceGroupId();
+
         $response = $this->client->graphql(
             $request->buildSearchQuery(),
             $request->getVariables(),

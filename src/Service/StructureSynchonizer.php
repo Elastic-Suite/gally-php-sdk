@@ -120,7 +120,7 @@ class StructureSynchonizer
             $identity = $this->sourceFieldRepository->getIdentity($sourceField);
             $existingSourceField = $existingSourceFields[$identity] ?? null;
             if (!$existingSourceField?->isSystem()) {
-                $this->syncSourceField($sourceField, false);
+                $this->syncSourceField($sourceField, true);
             }
             unset($existingSourceFields[$identity]);
             unset($existingMetadatas[$this->metadataRepository->getIdentity($sourceField->getMetadata())]);
