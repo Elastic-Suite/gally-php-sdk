@@ -17,6 +17,13 @@ namespace Gally\Sdk\Repository;
 use Gally\Sdk\Entity\AbstractEntity;
 use Gally\Sdk\Entity\Catalog;
 
+/**
+ * Catalog repository.
+ *
+ * @method Catalog findByIdentity(Catalog $entity)
+ * @method Catalog[] findBy(mixed[] $criteria)
+ * @method Catalog[] findAll()
+ */
 class CatalogRepository extends AbstractRepository
 {
     public function getEntityCode(): string

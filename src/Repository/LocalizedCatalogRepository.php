@@ -23,6 +23,8 @@ use Gally\Sdk\Entity\LocalizedCatalog;
  * Localized Catalog repository.
  *
  * @method LocalizedCatalog findByIdentity(LocalizedCatalog $entity)
+ * @method LocalizedCatalog[] findBy(mixed[] $criteria)
+ * @method LocalizedCatalog[] findAll()
  * @method LocalizedCatalog createOrUpdate(LocalizedCatalog $entity)
  */
 class LocalizedCatalogRepository extends AbstractRepository
