@@ -27,7 +27,7 @@ class MetadataRepository extends AbstractRepository
     public function getIdentity(AbstractEntity $entity): string
     {
         if (!$entity instanceof Metadata) {
-            throw new \InvalidArgumentException(sprintf('Entity %s not managed by this repository.', $entity::class));
+            throw new \InvalidArgumentException(\sprintf('Entity %s not managed by this repository.', $entity::class));
         }
 
         return $entity->getEntity();

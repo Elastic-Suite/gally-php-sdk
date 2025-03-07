@@ -39,7 +39,7 @@ class SourceFieldOptionRepository extends AbstractBulkRepository
     public function getIdentity(AbstractEntity $entity): string
     {
         if (!$entity instanceof SourceFieldOption) {
-            throw new \InvalidArgumentException(sprintf('Entity %s not managed by this repository.', $entity::class));
+            throw new \InvalidArgumentException(\sprintf('Entity %s not managed by this repository.', $entity::class));
         }
 
         return $entity->getSourceField()->getCode() . '_' . $entity->getCode();

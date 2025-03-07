@@ -16,6 +16,7 @@ namespace Gally\Sdk\Service;
 
 use Gally\Sdk\Client\Client;
 use Gally\Sdk\Client\Configuration;
+use Gally\Sdk\Client\TokenCacheManagerInterface;
 use Gally\Sdk\Entity\AbstractEntity;
 use Gally\Sdk\Entity\LocalizedCatalog;
 use Gally\Sdk\Entity\Metadata;
@@ -39,9 +40,9 @@ class StructureSynchonizer
     private SourceFieldRepository $sourceFieldRepository;
     private SourceFieldOptionRepository $sourceFieldOptionRepository;
 
-    public function __construct(Configuration $configuration)
+    public function __construct(Configuration $configuration, ?TokenCacheManagerInterface $tokenCacheManager = null)
     {
-        $client = new Client($configuration);
+        $client = new Client($configuration, $tokenCacheManager);
         $this->catalogRepository = new CatalogRepository($client);
         $this->localizedCatalogRepository = new LocalizedCatalogRepository($client, $this->catalogRepository);
         $this->metadataRepository = new MetadataRepository($client);
@@ -77,8 +78,8 @@ class StructureSynchonizer
                 }
             }
 
-            echo sprintf("  Delete %d localized catalog(s)\n", \count($existingLocalizedCatalogs));
-            echo sprintf("  Delete %d catalog(s)\n", \count($existingCatalogs));
+            echo \sprintf("  Delete %d localized catalog(s)\n", \count($existingLocalizedCatalogs));
+            echo \sprintf("  Delete %d catalog(s)\n", \count($existingCatalogs));
             echo "\n";
         }
     }
@@ -141,13 +142,13 @@ class StructureSynchonizer
 
             /** @var Metadata $metadata */
             foreach ($existingMetadatas as $metadata) {
-                if (!$dryRun && !in_array($metadata->getEntity(), ['product', 'category'])) {
+                if (!$dryRun && !\in_array($metadata->getEntity(), ['product', 'category'], true)) {
                     $this->metadataRepository->delete($metadata);
                 }
             }
 
-            echo sprintf("  Delete %d source field(s)\n", \count($existingSourceFields));
-            echo sprintf("  Delete %d metadata\n", \count($existingMetadatas));
+            echo \sprintf("  Delete %d source field(s)\n", \count($existingSourceFields));
+            echo \sprintf("  Delete %d metadata\n", \count($existingMetadatas));
             echo "\n";
         }
     }
@@ -208,7 +209,7 @@ class StructureSynchonizer
                 }
             }
 
-            echo sprintf("  Delete %d source field option(s)\n", \count($existingSourceFieldOptions));
+            echo \sprintf("  Delete %d source field option(s)\n", \count($existingSourceFieldOptions));
             echo "\n";
         }
     }
@@ -221,7 +222,7 @@ class StructureSynchonizer
                 $this->sourceFieldRepository,
                 [
                     'entity' => $sourceFieldOption->getSourceField()->getMetadata()->getEntity(),
-                    'code' => $sourceFieldOption->getSourceField()->getCode()
+                    'code' => $sourceFieldOption->getSourceField()->getCode(),
                 ]
             );
 
@@ -246,18 +247,18 @@ class StructureSynchonizer
         }
     }
 
-    private function fetchEntityUri(AbstractEntity $entity, AbstractRepository $repository, array $criteria)
+    private function fetchEntityUri(AbstractEntity $entity, AbstractRepository $repository, array $criteria): void
     {
-        if (get_class($entity) == SourceFieldOption::class) {
+        if (SourceFieldOption::class === $entity::class) {
             $code = $criteria['code'];
             unset($criteria['code']);
         }
-        if (get_class($entity) == Metadata::class) {
+        if (Metadata::class === $entity::class) {
             $entityCode = $criteria['entity'];
             unset($criteria['entity']);
         }
         $existingEntities = $repository->findBy($criteria);
-        if ($existingEntities && count($existingEntities) == 1) {
+        if ($existingEntities && 1 == \count($existingEntities)) {
             $existingEntity = reset($existingEntities);
             $entity->setUri($existingEntity->getUri());
         } elseif (isset($code)) {

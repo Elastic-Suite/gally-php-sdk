@@ -72,7 +72,7 @@ abstract class AbstractRepository
                 )
             );
 
-            $rawEntities = array_key_exists('hydra:member', $rawEntities) ? $rawEntities['hydra:member'] : [];
+            $rawEntities = \array_key_exists('hydra:member', $rawEntities) ? $rawEntities['hydra:member'] : [];
             foreach ($rawEntities as $rawEntity) {
                 $entity = $this->buildEntityObject($rawEntity);
                 $entities[$this->getIdentity($entity)] = $entity;
@@ -113,7 +113,7 @@ abstract class AbstractRepository
         $existingEntity = $this->entityByIdentity[$identity] ?? null;
 
         if (!$existingEntity) {
-            throw new \RuntimeException(sprintf('Entity %s not found.', $identity));
+            throw new \RuntimeException(\sprintf('Entity %s not found.', $identity));
         }
 
         $this->client->delete((string) $existingEntity);

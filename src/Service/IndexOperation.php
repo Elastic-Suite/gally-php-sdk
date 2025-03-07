@@ -16,6 +16,7 @@ namespace Gally\Sdk\Service;
 
 use Gally\Sdk\Client\Client;
 use Gally\Sdk\Client\Configuration;
+use Gally\Sdk\Client\TokenCacheManagerInterface;
 use Gally\Sdk\Entity\Index;
 use Gally\Sdk\Entity\LocalizedCatalog;
 use Gally\Sdk\Entity\Metadata;
@@ -32,9 +33,9 @@ class IndexOperation
     protected Client $client;
     protected LocalizedCatalogRepository $localizedCatalogRepository;
 
-    public function __construct(Configuration $configuration)
+    public function __construct(Configuration $configuration, ?TokenCacheManagerInterface $tokenCacheManager = null)
     {
-        $this->client = new Client($configuration);
+        $this->client = new Client($configuration, $tokenCacheManager);
         $catalogRepository = new CatalogRepository($this->client);
         $this->localizedCatalogRepository = new LocalizedCatalogRepository($this->client, $catalogRepository);
     }
@@ -55,7 +56,7 @@ class IndexOperation
 
         if (!$localizedCatalog->getUri()) {
             $existingLocalizedCatalogs = $this->localizedCatalogRepository->findBy(['code' => $localizedCatalog->getCode()]);
-            if (count($existingLocalizedCatalogs) !== 1) {
+            if (1 !== \count($existingLocalizedCatalogs)) {
                 throw new \LogicException("Can't find localized catalog with code '{$localizedCatalog->getCode()}', make sure you catalog structure has been sync with Gally.");
             }
             $localizedCatalog->setUri(reset($existingLocalizedCatalogs)->getUri());
@@ -80,14 +81,14 @@ class IndexOperation
     public function refreshIndex(Index|string $index): void
     {
         $this->client->put(
-            sprintf('%s/%s/%s', Index::getEntityCode(), 'refresh', is_string($index) ? $index : $index->getName())
+            \sprintf('%s/%s/%s', Index::getEntityCode(), 'refresh', \is_string($index) ? $index : $index->getName())
         );
     }
 
     public function installIndex(Index|string $index): void
     {
         $this->client->put(
-            sprintf('%s/%s/%s', Index::getEntityCode(), 'install', is_string($index) ? $index : $index->getName())
+            \sprintf('%s/%s/%s', Index::getEntityCode(), 'install', \is_string($index) ? $index : $index->getName())
         );
     }
 
@@ -95,7 +96,7 @@ class IndexOperation
     {
         $this->client->post(
             self::INDEX_DOCUMENT_ENTITY_CODE,
-            ['indexName' => is_string($index) ? $index : $index->getName(), 'documents' => $documents]
+            ['indexName' => \is_string($index) ? $index : $index->getName(), 'documents' => $documents]
         );
     }
 }

@@ -22,10 +22,10 @@ use Gally\Sdk\Entity\LocalizedCatalog;
 /**
  * Localized Catalog repository.
  *
- * @method LocalizedCatalog findByIdentity(LocalizedCatalog $entity)
+ * @method LocalizedCatalog   findByIdentity(LocalizedCatalog $entity)
  * @method LocalizedCatalog[] findBy(mixed[] $criteria)
  * @method LocalizedCatalog[] findAll()
- * @method LocalizedCatalog createOrUpdate(LocalizedCatalog $entity)
+ * @method LocalizedCatalog   createOrUpdate(LocalizedCatalog $entity)
  */
 class LocalizedCatalogRepository extends AbstractRepository
 {
@@ -44,7 +44,7 @@ class LocalizedCatalogRepository extends AbstractRepository
     public function getIdentity(AbstractEntity $entity): string
     {
         if (!$entity instanceof LocalizedCatalog) {
-            throw new \InvalidArgumentException(sprintf('Entity %s not managed by this repository.', $entity::class));
+            throw new \InvalidArgumentException(\sprintf('Entity %s not managed by this repository.', $entity::class));
         }
 
         return $entity->getCode();

@@ -21,39 +21,39 @@ use GuzzleHttp\RequestOptions;
 class Client
 {
     private ?GuzzleClient $client = null;
-    private ?string $token = null;
 
     public function __construct(
         private readonly Configuration $configuration,
+        private readonly ?TokenCacheManagerInterface $tokenCacheManager = null,
     ) {
     }
 
-    public function get(string $endpoint, array $data = []): array
+    public function get(string $endpoint, array $data = [], bool $isPrivate = true): array
     {
-        return $this->query('GET', $endpoint, $data);
+        return $this->query('GET', $endpoint, $data, [], $isPrivate);
     }
 
-    public function post(string $endpoint, array $data = []): array
+    public function post(string $endpoint, array $data = [], bool $isPrivate = true): array
     {
-        return $this->query('POST', $endpoint, $data);
+        return $this->query('POST', $endpoint, $data, [], $isPrivate);
     }
 
-    public function put(string $endpoint, array $data = []): array
+    public function put(string $endpoint, array $data = [], bool $isPrivate = true): array
     {
-        return $this->query('PUT', $endpoint, $data);
+        return $this->query('PUT', $endpoint, $data, [], $isPrivate);
     }
 
-    public function delete(string $endpoint, array $data = []): void
+    public function delete(string $endpoint, array $data = [], bool $isPrivate = true): void
     {
-        $this->query('DELETE', $endpoint, $data);
+        $this->query('DELETE', $endpoint, $data, [], $isPrivate);
     }
 
-    public function patch(string $endpoint, array $data = []): array
+    public function patch(string $endpoint, array $data = [], bool $isPrivate = true): array
     {
-        return $this->query('PATCH', $endpoint, $data);
+        return $this->query('PATCH', $endpoint, $data, [], $isPrivate);
     }
 
-    public function graphql(string $query, array $variables = [], array $headers = []): array
+    public function graphql(string $query, array $variables = [], array $headers = [], bool $isPrivate = true): array
     {
         $response = $this->query(
             'POST',
@@ -65,7 +65,8 @@ class Client
                     'Content-Type' => 'application/json',
                 ],
                 $headers,
-            )
+            ),
+            $isPrivate
         );
         if (isset($response['errors'])) {
             $error = reset($response['errors']);
@@ -78,25 +79,49 @@ class Client
     /**
      * @throws \RuntimeException
      */
-    public function query(string $method, string $endpoint, array $data, array $headers = []): array
+    public function query(string $method, string $endpoint, array $data, array $headers = [], bool $isPrivate = true): array
     {
         try {
-            $queryParams = 'GET' === $method ? http_build_query($data) : '';
-            $response = $this->getClient()->request(
-                $method,
-                'GET' === $method ? "$endpoint?$queryParams" : $endpoint,
+            $headers = array_merge(
                 [
-                    RequestOptions::HEADERS => array_merge(
-                        [
-                            'Accept' => 'application/ld+json',
-                            'Content-Type' => 'application/ld+json',
-                            'Authorization' => 'Bearer ' . $this->getAuthorizationToken(),
-                        ],
-                        $headers,
-                    ),
-                    RequestOptions::JSON => $data,
-                ]
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/ld+json',
+                ],
+                $headers,
             );
+
+            if ($isPrivate) {
+                $token = $this->tokenCacheManager
+                    ? $this->tokenCacheManager->getToken([$this, 'getAuthorizationToken'])
+                    : $this->getAuthorizationToken();
+                $headers['Authorization'] = 'Bearer ' . $token;
+            }
+
+            $queryParams = 'GET' === $method ? http_build_query($data) : '';
+            try {
+                $response = $this->getClient()->request(
+                    $method,
+                    'GET' === $method ? "$endpoint?$queryParams" : $endpoint,
+                    [RequestOptions::HEADERS => $headers, RequestOptions::JSON => $data]
+                );
+            } catch (GuzzleException $e) {
+                // If we get a 401, we try to generate a new token.
+                if ($isPrivate && 401 === $e->getCode()) {
+                    $token = $this->tokenCacheManager
+                        ? $this->tokenCacheManager->getToken([$this, 'getAuthorizationToken'], false)
+                        : $this->getAuthorizationToken();
+
+                    $headers['Authorization'] = 'Bearer ' . $token;
+
+                    $response = $this->getClient()->request(
+                        $method,
+                        'GET' === $method ? "$endpoint?$queryParams" : $endpoint,
+                        [RequestOptions::HEADERS => $headers, RequestOptions::JSON => $data]
+                    );
+                } else {
+                    throw $e;
+                }
+            }
 
             $responseBody = $response->getBody()->getContents();
             if ('' === $responseBody) {
@@ -106,37 +131,34 @@ class Client
             /** @var array<mixed> $result */
             $result = json_decode($responseBody, true);
         } catch (GuzzleException $e) {
-            $message = sprintf('An error happened when fetching the "%s" API endpoint.', $endpoint);
+            $message = \sprintf('An error happened when fetching the "%s" API endpoint.', $endpoint);
             throw new \RuntimeException($message, 0, $e);
         }
 
         return $result;
     }
 
-    private function getAuthorizationToken(): string
+    public function getAuthorizationToken(): string
     {
-        if (null === $this->token) {
-            try {
-                $response = $this->getClient()->post("authentication_token", [
-                    RequestOptions::HEADERS => [
-                        'accept' => 'application/ld+json',
-                        'Content-Type' => 'application/ld+json',
-                    ],
-                    RequestOptions::JSON => [
-                        'email' => $this->configuration->getUser(),
-                        'password' => $this->configuration->getPassword(),
-                    ],
-                ]);
+        try {
+            $response = $this->getClient()->post('authentication_token', [
+                RequestOptions::HEADERS => [
+                    'accept' => 'application/ld+json',
+                    'Content-Type' => 'application/ld+json',
+                ],
+                RequestOptions::JSON => [
+                    'email' => $this->configuration->getUser(),
+                    'password' => $this->configuration->getPassword(),
+                ],
+            ]);
 
-                /** @var array<string> $json */
-                $json = json_decode($response->getBody()->getContents(), true);
-                $this->token = $json['token'];
-            } catch (GuzzleException $e) {
-                throw new \RuntimeException('An error happened when fetching the authentication token.', 0, $e);
-            }
+            /** @var array<string> $json */
+            $json = json_decode($response->getBody()->getContents(), true);
+
+            return $json['token'];
+        } catch (GuzzleException $e) {
+            throw new \RuntimeException('An error happened when fetching the authentication token.', 0, $e);
         }
-
-        return $this->token;
     }
 
     private function getClient(): GuzzleClient

@@ -18,7 +18,7 @@ abstract class AbstractEntity
 {
     abstract public static function getEntityCode(): string;
 
-    protected string|null $uri;
+    protected ?string $uri;
 
     public function getUri(): string
     {
@@ -39,6 +39,6 @@ abstract class AbstractEntity
 
     protected function cleanApiPrefix(string $uri): string
     {
-        return preg_replace('#^.*(/[^/]+/[^/]+$)#', '$1', $uri);
+        return preg_replace('#^.*(/[^/]+/[^/]+$)#', '$1', $uri) ?: '';
     }
 }

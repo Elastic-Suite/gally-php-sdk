@@ -16,6 +16,7 @@ namespace Gally\Sdk\Service;
 
 use Gally\Sdk\Client\Client;
 use Gally\Sdk\Client\Configuration;
+use Gally\Sdk\Client\TokenCacheManagerInterface;
 use Gally\Sdk\Entity\Metadata;
 use Gally\Sdk\Entity\SourceField;
 use Gally\Sdk\GraphQl\Request;
@@ -33,9 +34,9 @@ class SearchManager
     protected array $productSortingOptions;
     protected SourceFieldRepository $sourceFieldRepository;
 
-    public function __construct(Configuration $configuration)
+    public function __construct(Configuration $configuration, ?TokenCacheManagerInterface $tokenCacheManager = null)
     {
-        $client = new Client($configuration);
+        $client = new Client($configuration, $tokenCacheManager);
         $this->client = $client;
         $this->sourceFieldRepository = new SourceFieldRepository($client, new MetadataRepository($client));
     }
@@ -55,7 +56,7 @@ class SearchManager
                   }
                 }
             GQL;
-            $response = $this->client->graphql($query);
+            $response = $this->client->graphql($query, [], [], false);
             $metadata = new Metadata('product');
 
             $this->productSortingOptions = array_map(
@@ -106,7 +107,8 @@ class SearchManager
         $response = $this->client->graphql(
             $request->buildSearchQuery(),
             $request->getVariables(),
-            $priceGroup ? ['price-group-id' => $priceGroup] : []
+            $priceGroup ? ['price-group-id' => $priceGroup] : [],
+            false
         );
 
         return new Response($request, $response['data']);
@@ -145,7 +147,9 @@ class SearchManager
                 'search' => $variables['search'] ?? null,
                 'filter' => $variables['filter'] ?? null,
                 'currentCategoryId' => $variables['currentCategoryId'] ?? null,
-            ])
+            ]),
+            [],
+            false
         );
 
         return $response['data']['viewMoreProductFacetOptions'];

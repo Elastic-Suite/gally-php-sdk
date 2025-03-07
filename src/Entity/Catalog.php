@@ -24,7 +24,7 @@ class Catalog extends AbstractEntity
     public function __construct(
         private string $code,
         private string $name,
-        string $uri = null,
+        ?string $uri = null,
     ) {
         $this->uri = $uri;
     }
