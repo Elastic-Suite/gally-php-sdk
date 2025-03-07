@@ -30,7 +30,7 @@ class SourceFieldOption extends AbstractEntity
         private int $position,
         private string $defaultLabel,
         private array $labels,
-        string $uri = null,
+        ?string $uri = null,
     ) {
         $this->uri = $uri;
     }

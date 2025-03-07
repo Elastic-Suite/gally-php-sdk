@@ -39,7 +39,7 @@ abstract class AbstractBulkRepository extends AbstractRepository
     {
         if ($this->currentBatchSize) {
             $rawEntities = $this->client->post("{$this->getEntityCode()}/bulk", $this->currentBatch);
-            $rawEntities = array_key_exists('hydra:member', $rawEntities) ? $rawEntities['hydra:member'] : [];
+            $rawEntities = \array_key_exists('hydra:member', $rawEntities) ? $rawEntities['hydra:member'] : [];
             foreach ($rawEntities as $rawEntity) {
                 $entity = $this->buildEntityObject($rawEntity);
                 $this->saveInCache($entity);

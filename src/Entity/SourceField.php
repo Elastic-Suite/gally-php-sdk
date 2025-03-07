@@ -46,7 +46,7 @@ class SourceField extends AbstractEntity
         private string $defaultLabel,
         private array $labels,
         private bool $isSystem = false,
-        string $uri = null,
+        ?string $uri = null,
     ) {
         $this->uri = $uri;
     }

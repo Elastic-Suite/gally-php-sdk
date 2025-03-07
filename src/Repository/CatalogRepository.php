@@ -20,7 +20,7 @@ use Gally\Sdk\Entity\Catalog;
 /**
  * Catalog repository.
  *
- * @method Catalog findByIdentity(Catalog $entity)
+ * @method Catalog   findByIdentity(Catalog $entity)
  * @method Catalog[] findBy(mixed[] $criteria)
  * @method Catalog[] findAll()
  */
@@ -34,7 +34,7 @@ class CatalogRepository extends AbstractRepository
     public function getIdentity(AbstractEntity $entity): string
     {
         if (!$entity instanceof Catalog) {
-            throw new \InvalidArgumentException(sprintf('Entity %s not managed by this repository.', $entity::class));
+            throw new \InvalidArgumentException(\sprintf('Entity %s not managed by this repository.', $entity::class));
         }
 
         return $entity->getCode();

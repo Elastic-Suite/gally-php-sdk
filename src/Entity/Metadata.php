@@ -23,7 +23,7 @@ class Metadata extends AbstractEntity
 
     public function __construct(
         private string $entity,
-        string $uri = null,
+        ?string $uri = null,
     ) {
         $this->uri = $uri;
     }

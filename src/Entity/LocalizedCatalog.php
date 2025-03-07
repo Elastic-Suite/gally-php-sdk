@@ -27,7 +27,7 @@ class LocalizedCatalog extends AbstractEntity
         private string $name,
         private string $locale,
         private string $currency,
-        string $uri = null,
+        ?string $uri = null,
     ) {
         $this->uri = $uri;
     }

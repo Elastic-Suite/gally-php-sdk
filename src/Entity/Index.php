@@ -24,9 +24,8 @@ class Index
     public function __construct(
         private Metadata $metadata,
         private LocalizedCatalog $localizedCatalog,
-        string $name = null,
+        private ?string $name = null,
     ) {
-        $this->name = $name;
     }
 
     public function getMetadata(): Metadata

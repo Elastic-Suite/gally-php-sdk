@@ -49,6 +49,6 @@ class Label
 
     protected function cleanApiPrefix(string $prefix): string
     {
-        return preg_replace('#^.*(/[^/]+/[^/]+$)#', '$1', $prefix);
+        return preg_replace('#^.*(/[^/]+/[^/]+$)#', '$1', $prefix) ?: '';
     }
 }
