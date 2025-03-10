@@ -84,18 +84,16 @@ class SourceField extends AbstractEntity
         return $this->isSystem;
     }
 
-    public function __toJson(bool $isBulkContext = false): array
+    public function __toJson(): array
     {
         $data = [
-            'metadata' => $isBulkContext
-                ? $this->cleanApiPrefix((string) $this->getMetadata())
-                : (string) $this->getMetadata(),
+            'metadata' => (string) $this->getMetadata(),
             'code' => $this->getCode(),
             'type' => $this->getType(),
             'defaultLabel' => $this->getDefaultLabel(),
             'labels' => array_map(
-                function ($label) use ($isBulkContext) {
-                    return $label->__toJson($isBulkContext);
+                function ($label) {
+                    return $label->__toJson();
                 },
                 $this->getLabels()
             ),

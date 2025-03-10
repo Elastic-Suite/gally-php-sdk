@@ -39,7 +39,7 @@ class Catalog extends AbstractEntity
         return $this->name;
     }
 
-    public function __toJson(bool $isBulkContext = false): array
+    public function __toJson(): array
     {
         return [
             'code' => $this->getCode(),

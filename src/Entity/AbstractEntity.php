@@ -35,10 +35,5 @@ abstract class AbstractEntity
         return $this->getUri();
     }
 
-    abstract public function __toJson(bool $isBulkContext = false): array;
-
-    protected function cleanApiPrefix(string $uri): string
-    {
-        return preg_replace('#^.*(/[^/]+/[^/]+$)#', '$1', $uri) ?: '';
-    }
+    abstract public function __toJson(): array;
 }

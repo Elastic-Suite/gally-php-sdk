@@ -33,7 +33,7 @@ class Metadata extends AbstractEntity
         return $this->entity;
     }
 
-    public function __toJson(bool $isBulkContext = false): array
+    public function __toJson(): array
     {
         return ['entity' => $this->getEntity()];
     }

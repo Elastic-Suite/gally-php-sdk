@@ -68,18 +68,16 @@ class SourceFieldOption extends AbstractEntity
         return $this->labels;
     }
 
-    public function __toJson(bool $isBulkContext = false): array
+    public function __toJson(): array
     {
         return [
-            'sourceField' => $isBulkContext
-                ? $this->cleanApiPrefix((string) $this->getSourceField())
-                : (string) $this->getSourceField(),
+            'sourceField' => (string) $this->getSourceField(),
             'code' => $this->getCode(),
             'position' => $this->getPosition(),
             'defaultLabel' => $this->getDefaultLabel(),
             'labels' => array_map(
-                function ($label) use ($isBulkContext) {
-                    return $label->__toJson($isBulkContext);
+                function ($label) {
+                    return $label->__toJson();
                 },
                 $this->getLabels()
             ),
