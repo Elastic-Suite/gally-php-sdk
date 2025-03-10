@@ -28,7 +28,7 @@ abstract class AbstractBulkRepository extends AbstractRepository
 
     public function addEntityToBulk(AbstractEntity $entity): void
     {
-        $this->currentBatch[] = $entity->__toJson(true);
+        $this->currentBatch[] = $entity->__toJson();
         ++$this->currentBatchSize;
         if ($this->currentBatchSize >= self::BATCH_SIZE) {
             $this->runBulk();

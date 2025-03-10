@@ -64,9 +64,7 @@ class LocalizedCatalog extends AbstractEntity
             'name' => $this->getName(),
             'locale' => $this->getLocale(),
             'currency' => $this->getCurrency(),
-            'catalog' => $isBulkContext
-                ? $this->cleanApiPrefix((string) $this->getCatalog())
-                : (string) $this->getCatalog(),
+            'catalog' => (string) $this->getCatalog(),
         ];
     }
 }
