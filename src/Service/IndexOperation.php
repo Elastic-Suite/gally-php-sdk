@@ -99,4 +99,15 @@ class IndexOperation
             ['indexName' => \is_string($index) ? $index : $index->getName(), 'documents' => $documents]
         );
     }
+
+    public function deleteBulk(Index|string $index, array $documentIds): void
+    {
+        $indexName = \is_string($index) ? $index : $index->getName();
+        $documentIds = array_map('strval', array_values($documentIds));
+
+        $this->client->delete(
+            self::INDEX_DOCUMENT_ENTITY_CODE . '/' . $indexName,
+            ['document_ids' => $documentIds]
+        );
+    }
 }
