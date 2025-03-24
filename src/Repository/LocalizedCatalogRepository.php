@@ -29,6 +29,9 @@ use Gally\Sdk\Entity\LocalizedCatalog;
  */
 class LocalizedCatalogRepository extends AbstractRepository
 {
+    protected static array $entityByIdentity = [];
+    protected static array $entityByUri = [];
+
     public function __construct(
         Client $client,
         private CatalogRepository $catalogRepository)
