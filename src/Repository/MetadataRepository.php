@@ -19,6 +19,9 @@ use Gally\Sdk\Entity\Metadata;
 
 class MetadataRepository extends AbstractRepository
 {
+    protected static array $entityByIdentity = [];
+    protected static array $entityByUri = [];
+
     public function getEntityCode(): string
     {
         return Metadata::getEntityCode();

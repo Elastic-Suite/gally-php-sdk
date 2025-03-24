@@ -24,6 +24,9 @@ use Gally\Sdk\Entity\SourceFieldOption;
  */
 class SourceFieldOptionRepository extends AbstractBulkRepository
 {
+    protected static array $entityByIdentity = [];
+    protected static array $entityByUri = [];
+
     public function __construct(
         Client $client,
         private SourceFieldRepository $sourceFieldRepository,

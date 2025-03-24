@@ -26,6 +26,9 @@ use Gally\Sdk\Entity\Catalog;
  */
 class CatalogRepository extends AbstractRepository
 {
+    protected static array $entityByIdentity = [];
+    protected static array $entityByUri = [];
+
     public function getEntityCode(): string
     {
         return Catalog::getEntityCode();

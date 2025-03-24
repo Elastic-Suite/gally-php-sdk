@@ -24,8 +24,8 @@ abstract class AbstractRepository
 {
     protected const FETCH_PAGE_SIZE = 50;
 
-    protected array $entityByIdentity = [];
-    protected array $entityByUri = [];
+    protected static array $entityByIdentity = [];
+    protected static array $entityByUri = [];
 
     public function __construct(
         protected Client $client,
@@ -38,8 +38,8 @@ abstract class AbstractRepository
 
     public function findByUri(string $uri): AbstractEntity
     {
-        if (\array_key_exists($uri, $this->entityByUri)) {
-            return $this->entityByUri[$uri];
+        if (\array_key_exists($uri, static::$entityByUri)) {
+            return static::$entityByUri[$uri];
         }
 
         $rawEntity = $this->client->get($uri);
@@ -52,8 +52,8 @@ abstract class AbstractRepository
     public function findByIdentity(AbstractEntity $entity): ?AbstractEntity
     {
         $identity = $this->getIdentity($entity);
-        if (\array_key_exists($identity, $this->entityByIdentity)) {
-            return $this->entityByIdentity[$identity];
+        if (\array_key_exists($identity, static::$entityByIdentity)) {
+            return static::$entityByIdentity[$identity];
         }
 
         return null;
@@ -95,7 +95,7 @@ abstract class AbstractRepository
     {
         $identity = $this->getIdentity($entity);
 
-        $existingEntity = $this->entityByIdentity[$identity] ?? null;
+        $existingEntity = static::$entityByIdentity[$identity] ?? null;
         $uri = $existingEntity ? (string) $existingEntity : (string) $entity;
         $result = $uri
             ? $this->client->put($uri, $entity->__toJson())
@@ -110,7 +110,7 @@ abstract class AbstractRepository
     public function delete(AbstractEntity $entity): void
     {
         $identity = $this->getIdentity($entity);
-        $existingEntity = $this->entityByIdentity[$identity] ?? null;
+        $existingEntity = static::$entityByIdentity[$identity] ?? null;
 
         if (!$existingEntity) {
             throw new \RuntimeException(\sprintf('Entity %s not found.', $identity));
@@ -121,8 +121,8 @@ abstract class AbstractRepository
 
     protected function saveInCache(AbstractEntity $entity): void
     {
-        $this->entityByIdentity[$this->getIdentity($entity)] = $entity;
-        $this->entityByUri[(string) $entity] = $entity;
+        static::$entityByIdentity[$this->getIdentity($entity)] = $entity;
+        static::$entityByUri[(string) $entity] = $entity;
     }
 
     abstract protected function buildEntityObject(array $rawEntity): AbstractEntity;
