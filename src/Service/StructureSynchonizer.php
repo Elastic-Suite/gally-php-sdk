@@ -140,15 +140,22 @@ class StructureSynchonizer
                 }
             }
 
+            /** @var Metadata[] $nonSystemExistingMetadata */
+            $nonSystemExistingMetadata = [];
             /** @var Metadata $metadata */
             foreach ($existingMetadatas as $metadata) {
-                if (!$dryRun && !\in_array($metadata->getEntity(), ['product', 'category'], true)) {
+                if (!\in_array($metadata->getEntity(), ['product', 'category'], true)) {
+                    $nonSystemExistingMetadata[] = $metadata;
+                }
+            }
+            foreach ($nonSystemExistingMetadata as $metadata) {
+                if (!$dryRun) {
                     $this->metadataRepository->delete($metadata);
                 }
             }
 
             echo \sprintf("  Delete %d source field(s)\n", \count($existingSourceFields));
-            echo \sprintf("  Delete %d metadata\n", \count($existingMetadatas));
+            echo \sprintf("  Delete %d metadata\n", \count($nonSystemExistingMetadata));
             echo "\n";
         }
     }
