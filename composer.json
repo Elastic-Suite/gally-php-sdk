@@ -1,10 +1,9 @@
 {
-    "name": "gally/gally-php-rest-sdk",
+    "name": "gally/gally-php-sdk",
     "description": "PHP Sdk for Gally connectors",
     "homepage": "https://meetgally.com",
     "type": "library",
     "license": "OSL-3.0",
-    "version": "2.0.0",
     "require": {
         "php": "^8.1.0",
         "guzzlehttp/guzzle": "^6.2 || ^7.2"
