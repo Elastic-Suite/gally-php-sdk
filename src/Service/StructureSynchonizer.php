@@ -200,7 +200,7 @@ class StructureSynchonizer
         $this->metadataRepository->findAll();
         $this->sourceFieldRepository->findAll();
         $this->localizedCatalogRepository->findAll();
-        $existingSourceFieldOptions = $this->sourceFieldOptionRepository->findAll();
+        $existingSourceFieldOptions = $clean ? $this->sourceFieldOptionRepository->findAll() : [];
 
         foreach ($sourceFieldOptions as $sourceFieldOption) {
             $this->syncSourceFieldOption($sourceFieldOption, true);
