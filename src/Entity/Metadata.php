@@ -33,6 +33,6 @@ class Metadata extends AbstractEntity
 
     public function __toJson(): array
     {
-        return ['entity' => $this->getEntity()];
+        return $this->addUriToJson(['entity' => $this->getEntity()]);
     }
 }

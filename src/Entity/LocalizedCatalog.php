@@ -57,12 +57,12 @@ class LocalizedCatalog extends AbstractEntity
 
     public function __toJson(bool $isBulkContext = false): array
     {
-        return [
+        return $this->addUriToJson([
             'code' => $this->getCode(),
             'name' => $this->getName(),
             'locale' => $this->getLocale(),
             'currency' => $this->getCurrency(),
             'catalog' => (string) $this->getCatalog(),
-        ];
+        ]);
     }
 }

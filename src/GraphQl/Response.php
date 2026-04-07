@@ -21,6 +21,7 @@ final class Response
 
     private array $collection;
     private array $aggregations;
+    private array $termSuggestions;
     private int $totalCount;
     private int $lastPage;
     private int $itemsPerPage;
@@ -39,6 +40,7 @@ final class Response
             $rawResponse['collection'] ?? []
         );
         $this->aggregations = $rawResponse['aggregations'] ?? [];
+        $this->termSuggestions = $rawResponse['termSuggestions'] ?? [];
         $this->totalCount = $rawResponse['paginationInfo']['totalCount'];
         $this->lastPage = $rawResponse['paginationInfo']['lastPage'];
         $this->itemsPerPage = $rawResponse['paginationInfo']['itemsPerPage'];
@@ -55,6 +57,11 @@ final class Response
     public function getAggregations(): array
     {
         return $this->aggregations;
+    }
+
+    public function getTermSuggestions(): array
+    {
+        return $this->termSuggestions;
     }
 
     public function getTotalCount(): int

@@ -33,5 +33,14 @@ abstract class AbstractEntity
         return $this->getUri();
     }
 
+    public function addUriToJson(array $json): array
+    {
+        if ($this->getUri()) {
+            $json['@id'] = $this->getUri();
+        }
+
+        return $json;
+    }
+
     abstract public function __toJson(): array;
 }

@@ -39,9 +39,9 @@ class Catalog extends AbstractEntity
 
     public function __toJson(): array
     {
-        return [
+        return $this->addUriToJson([
             'code' => $this->getCode(),
             'name' => $this->getName(),
-        ];
+        ]);
     }
 }

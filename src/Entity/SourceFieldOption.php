@@ -68,7 +68,7 @@ class SourceFieldOption extends AbstractEntity
 
     public function __toJson(): array
     {
-        return [
+        return $this->addUriToJson([
             'sourceField' => (string) $this->getSourceField(),
             'code' => $this->getCode(),
             'position' => $this->getPosition(),
@@ -79,6 +79,6 @@ class SourceFieldOption extends AbstractEntity
                 },
                 $this->getLabels()
             ),
-        ];
+        ]);
     }
 }
