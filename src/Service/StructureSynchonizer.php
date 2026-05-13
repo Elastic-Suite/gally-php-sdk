@@ -282,6 +282,13 @@ class StructureSynchonizer
                     break;
                 }
             }
+        } elseif (isset($criteria['code'])) {
+            foreach ($existingEntities as $existingEntity) {
+                if ($existingEntity->getCode() == $criteria['code']) {
+                    $entity->setUri($existingEntity->getUri());
+                    break;
+                }
+            }
         }
     }
 }
