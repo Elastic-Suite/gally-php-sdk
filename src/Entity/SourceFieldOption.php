@@ -10,8 +10,6 @@
  * @license   Open Software License v. 3.0 (OSL-3.0)
  */
 
-declare(strict_types=1);
-
 namespace Gally\Sdk\Entity;
 
 class SourceFieldOption extends AbstractEntity
@@ -76,7 +74,7 @@ class SourceFieldOption extends AbstractEntity
             'position' => $this->getPosition(),
             'defaultLabel' => $this->getDefaultLabel(),
             'labels' => array_map(
-                function ($label) {
+                static function ($label) {
                     return $label->__toJson();
                 },
                 $this->getLabels()

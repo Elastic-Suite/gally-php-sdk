@@ -10,8 +10,6 @@
  * @license   Open Software License v. 3.0 (OSL-3.0)
  */
 
-declare(strict_types=1);
-
 namespace Gally\Sdk\Service;
 
 use Gally\Sdk\Client\Client;
@@ -278,6 +276,13 @@ class StructureSynchonizer
         } elseif (isset($entityCode)) {
             foreach ($existingEntities as $existingEntity) {
                 if ($existingEntity->getEntity() == $entityCode) {
+                    $entity->setUri($existingEntity->getUri());
+                    break;
+                }
+            }
+        } elseif (isset($criteria['code'])) {
+            foreach ($existingEntities as $existingEntity) {
+                if ($existingEntity->getCode() == $criteria['code']) {
                     $entity->setUri($existingEntity->getUri());
                     break;
                 }

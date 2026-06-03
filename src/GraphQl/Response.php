@@ -10,8 +10,6 @@
  * @license   Open Software License v. 3.0 (OSL-3.0)
  */
 
-declare(strict_types=1);
-
 namespace Gally\Sdk\GraphQl;
 
 final class Response
@@ -35,7 +33,7 @@ final class Response
     ) {
         $rawResponse = $rawResponse[$request->getEndpoint()] ?? [];
         $this->collection = array_map(
-            fn ($item) => \array_key_exists('data', $item)
+            static fn ($item) => \array_key_exists('data', $item)
                 ? array_intersect_key($item['data']['_source'], array_flip($request->getSelectedFields()))
                 : $item,
             $rawResponse['collection'] ?? []
