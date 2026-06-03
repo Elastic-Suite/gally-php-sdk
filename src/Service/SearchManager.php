@@ -10,8 +10,6 @@
  * @license   Open Software License v. 3.0 (OSL-3.0)
  */
 
-declare(strict_types=1);
-
 namespace Gally\Sdk\Service;
 
 use Gally\Sdk\Client\Client;
@@ -60,7 +58,7 @@ class SearchManager
             $metadata = new Metadata('product');
 
             $this->productSortingOptions = array_map(
-                fn ($productSortingOption) => new SourceField(
+                static fn ($productSortingOption) => new SourceField(
                     $metadata,
                     $productSortingOption['code'],
                     $productSortingOption['type'],
