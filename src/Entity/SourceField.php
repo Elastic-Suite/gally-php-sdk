@@ -102,6 +102,6 @@ class SourceField extends AbstractEntity
             $data['isSystem'] = true;
         }
 
-        return $data;
+        return $this->addUriToJson($data);
     }
 }

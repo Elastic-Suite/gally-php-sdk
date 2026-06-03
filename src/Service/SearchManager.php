@@ -31,6 +31,8 @@ class SearchManager
     /** @var SourceField[] */
     protected array $productSortingOptions;
     protected SourceFieldRepository $sourceFieldRepository;
+    /** @var array<string, array> */
+    private array $searchCache = [];
 
     public function __construct(Configuration $configuration, ?TokenCacheManagerInterface $tokenCacheManager = null)
     {
@@ -98,18 +100,22 @@ class SearchManager
         );
     }
 
-    public function search(Request $request): Response
+    public function search(Request $request, bool $isPrivate = false): Response
     {
         $priceGroup = $request->getPriceGroupId();
 
-        $response = $this->client->graphql(
-            $request->buildSearchQuery(),
-            $request->getVariables(),
-            $priceGroup ? ['price-group-id' => $priceGroup] : [],
-            false
-        );
+        $cacheKey = md5($request->buildSearchQuery() . json_encode($request->getVariables()) . ($priceGroup ?? '') . ($isPrivate ? '1' : '0'));
 
-        return new Response($request, $response['data']);
+        if (!isset($this->searchCache[$cacheKey])) {
+            $this->searchCache[$cacheKey] = $this->client->graphql(
+                $request->buildSearchQuery(),
+                $request->getVariables(),
+                $priceGroup ? ['price-group-id' => $priceGroup] : [],
+                $isPrivate
+            );
+        }
+
+        return new Response($request, $this->searchCache[$cacheKey]['data']);
     }
 
     public function viewMoreProductFilterOption(Request $request, string $aggregationField): array // todo response ?
